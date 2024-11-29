@@ -96,6 +96,12 @@ void FandomManagerCreateAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RV
 	callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", fanNames.AsString().data());
 }
 
+void StageManagerCreateAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
+{
+	RValue possibleDrops = g_ModuleInterface->CallBuiltin("variable_global_get", { "possibleDrops" });
+	callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", possibleDrops.AsString().data());
+}
+
 void PlayerManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
 {
 	
