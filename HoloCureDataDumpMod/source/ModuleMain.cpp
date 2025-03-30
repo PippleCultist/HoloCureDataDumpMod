@@ -1,5 +1,5 @@
 #include <Aurie/shared.hpp>
-#include <YYToolkit/shared.hpp>
+#include <YYToolkit/YYTK_Shared.hpp>
 #include <CallbackManager/CallbackManagerInterface.h>
 #include "ModuleMain.h"
 #include "CodeEvents.h"
@@ -92,7 +92,7 @@ EXPORTED AurieStatus ModuleInitialize(
 	g_RunnerInterface = g_ModuleInterface->GetRunnerInterface();
 	g_ModuleInterface->GetGlobalInstance(&globalInstance);
 
-	objAttackControllerIndex = static_cast<int>(g_ModuleInterface->CallBuiltin("asset_get_index", { "obj_AttackController" }).AsReal());
+	objAttackControllerIndex = static_cast<int>(g_ModuleInterface->CallBuiltin("asset_get_index", { "obj_AttackController" }).ToInt32());
 
 	for (int i = 0; i < std::extent<decltype(VariableNamesStringsArr)>::value; i++)
 	{

@@ -19,7 +19,7 @@ void PlayerManagerCreateAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RV
 		{
 			RValue curMobKey = mobsArr[i];
 			RValue curMob = g_ModuleInterface->CallBuiltin("ds_map_find_value", { MobsMap, curMobKey });
-			callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", curMob.AsString().data());
+			callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", curMob.ToString().data());
 		}
 	}
 
@@ -32,7 +32,7 @@ void PlayerManagerCreateAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RV
 		{
 			RValue key = fanLettersArr[i];
 			RValue value = g_ModuleInterface->CallBuiltin("ds_map_find_value", { FanLettersMap, key });
-			callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", value.AsString().data());
+			callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", value.ToString().data());
 		}
 	}
 
@@ -45,7 +45,7 @@ void PlayerManagerCreateAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RV
 		{
 			RValue key = stickersArr[i];
 			RValue value = g_ModuleInterface->CallBuiltin("ds_map_find_value", { StickersMap, key });
-			callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", value.AsString().data());
+			callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", value.ToString().data());
 		}
 	}
 
@@ -58,7 +58,7 @@ void PlayerManagerCreateAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RV
 		{
 			RValue key = itemsArr[i];
 			RValue value = g_ModuleInterface->CallBuiltin("ds_map_find_value", { ItemsMap, key });
-			callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", value.AsString().data());
+			callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", value.ToString().data());
 		}
 	}
 
@@ -71,7 +71,7 @@ void PlayerManagerCreateAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RV
 		{
 			RValue key = characterDataArr[i];
 			RValue value = g_ModuleInterface->CallBuiltin("ds_map_find_value", { characterDataMap, key });
-			callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", value.AsString().data());
+			callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", value.ToString().data());
 		}
 	}
 
@@ -84,7 +84,7 @@ void PlayerManagerCreateAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RV
 		{
 			RValue key = attackArr[i];
 			RValue value = g_ModuleInterface->CallBuiltin("ds_map_find_value", { attackMap, key });
-			callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", value.AsString().data());
+			callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", value.ToString().data());
 		}
 	}
 }
@@ -93,13 +93,13 @@ void FandomManagerCreateAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RV
 {
 	CInstance* Self = std::get<0>(Args);
 	RValue fanNames = g_ModuleInterface->CallBuiltin("variable_instance_get", { Self, "fanNames" });
-	callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", fanNames.AsString().data());
+	callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", fanNames.ToString().data());
 }
 
 void StageManagerCreateAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
 {
 	RValue possibleDrops = g_ModuleInterface->CallBuiltin("variable_global_get", { "possibleDrops" });
-	callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", possibleDrops.AsString().data());
+	callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", possibleDrops.ToString().data());
 }
 
 void PlayerManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
