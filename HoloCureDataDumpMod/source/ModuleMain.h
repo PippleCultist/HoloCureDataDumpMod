@@ -3,12 +3,13 @@
 #include <YYToolkit/YYTK_Shared.hpp>
 #include <CallbackManager/CallbackManagerInterface.h>
 
-#define VERSION_NUM "v1.0.2"
+#define VERSION_NUM "v1.1.0"
 #define MODNAME "Holocure Data Dump Mod " VERSION_NUM
 
 #define SOME_ENUM(DO) \
 	DO(timePause) \
 	DO(optionIcon) \
+	DO(object_index) \
 
 #define MAKE_ENUM(VAR) GML_ ## VAR,
 enum VariableNames

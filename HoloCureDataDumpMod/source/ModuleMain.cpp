@@ -1,10 +1,15 @@
+#pragma comment(lib, "d3d11.lib")
+
 #include <Aurie/shared.hpp>
 #include <YYToolkit/YYTK_Shared.hpp>
 #include <CallbackManager/CallbackManagerInterface.h>
 #include "ModuleMain.h"
 #include "CodeEvents.h"
 #include "ScriptFunctions.h"
+#include "CommonFunctions.h"
 #include <thread>
+#include <d3d11.h>
+
 using namespace Aurie;
 using namespace YYTK;
 
@@ -77,6 +82,11 @@ EXPORTED AurieStatus ModuleInitialize(
 		g_ModuleInterface->Print(CM_RED, "Failed to register callback for %s", "gml_Object_obj_PlayerManager_Step_0");
 		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
 	}
+	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_InputManager_Step_0", InputManagerStepBefore, nullptr)))
+	{
+		g_ModuleInterface->Print(CM_RED, "Failed to register callback for %s", "gml_Object_obj_InputManager_Step_0");
+		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
+	}
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_FandomManager_Create_0", nullptr, FandomManagerCreateAfter)))
 	{
 		g_ModuleInterface->Print(CM_RED, "Failed to register callback for %s", "gml_Object_obj_FandomManager_Create_0");
@@ -85,6 +95,11 @@ EXPORTED AurieStatus ModuleInitialize(
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_StageManager_Create_0", nullptr, StageManagerCreateAfter)))
 	{
 		g_ModuleInterface->Print(CM_RED, "Failed to register callback for %s", "gml_Object_obj_StageManager_Create_0");
+		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
+	}
+	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_TitleScreen_Create_0", TitleScreenCreateBefore, nullptr)))
+	{
+		g_ModuleInterface->Print(CM_RED, "Failed to register callback for %s", "gml_Object_obj_TitleScreen_Create_0");
 		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
 	}
 	
