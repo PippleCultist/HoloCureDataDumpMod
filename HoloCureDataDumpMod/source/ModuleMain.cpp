@@ -27,98 +27,126 @@ std::thread framePauseThread;
 
 int objAttackControllerIndex = -1;
 
-EXPORTED AurieStatus ModuleInitialize(
-	IN AurieModule* Module,
-	IN const fs::path& ModulePath
-)
+AurieStatus moduleInitStatus = AURIE_MODULE_INITIALIZATION_FAILED;
+
+void initHooks()
 {
-	AurieStatus status = AURIE_SUCCESS;
-	status = ObGetInterface("callbackManager", (AurieInterfaceBase*&)callbackManagerInterfacePtr);
-	if (!AurieSuccess(status))
-	{
-		printf("Failed to get callback manager interface. Make sure that CallbackManagerMod is located in the mods/Aurie directory.\n");
-		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
-	}
-	// Gets a handle to the interface exposed by YYTK
-	// You can keep this pointer for future use, as it will not change unless YYTK is unloaded.
-	status = ObGetInterface(
-		"YYTK_Main",
-		(AurieInterfaceBase*&)(g_ModuleInterface)
-	);
-
-	// If we can't get the interface, we fail loading.
-	if (!AurieSuccess(status))
-	{
-		printf("Failed to get YYTK Interface\n");
-		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
-	}
-
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterBuiltinFunctionCallback(MODNAME, "struct_get_from_hash", nullptr, nullptr, &origStructGetFromHashFunc)))
 	{
-		g_ModuleInterface->Print(CM_RED, "Failed to register callback for %s", "struct_get_from_hash");
-		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "struct_get_from_hash");
+		return;
 	}
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterBuiltinFunctionCallback(MODNAME, "struct_set_from_hash", nullptr, nullptr, &origStructSetFromHashFunc)))
 	{
-		g_ModuleInterface->Print(CM_RED, "Failed to register callback for %s", "struct_set_from_hash");
-		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "struct_set_from_hash");
+		return;
 	}
 
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterScriptFunctionCallback(MODNAME, "gml_Script_AddTimeEvent@gml_Object_obj_StageManager_Other_10", AddTimeEventBefore, nullptr, nullptr)))
 	{
-		g_ModuleInterface->Print(CM_RED, "Failed to register callback for %s", "gml_Script_AddTimeEvent@gml_Object_obj_StageManager_Other_10");
-		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Script_AddTimeEvent@gml_Object_obj_StageManager_Other_10");
+		return;
 	}
 
 
 
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_PlayerManager_Create_0", nullptr, PlayerManagerCreateAfter)))
 	{
-		g_ModuleInterface->Print(CM_RED, "Failed to register callback for %s", "gml_Object_obj_PlayerManager_Create_0");
-		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Object_obj_PlayerManager_Create_0");
+		return;
 	}
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_PlayerManager_Step_0", PlayerManagerStepBefore, nullptr)))
 	{
-		g_ModuleInterface->Print(CM_RED, "Failed to register callback for %s", "gml_Object_obj_PlayerManager_Step_0");
-		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Object_obj_PlayerManager_Step_0");
+		return;
 	}
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_InputManager_Step_0", InputManagerStepBefore, nullptr)))
 	{
-		g_ModuleInterface->Print(CM_RED, "Failed to register callback for %s", "gml_Object_obj_InputManager_Step_0");
-		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Object_obj_InputManager_Step_0");
+		return;
 	}
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_FandomManager_Create_0", nullptr, FandomManagerCreateAfter)))
 	{
-		g_ModuleInterface->Print(CM_RED, "Failed to register callback for %s", "gml_Object_obj_FandomManager_Create_0");
-		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Object_obj_FandomManager_Create_0");
+		return;
 	}
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_StageManager_Create_0", nullptr, StageManagerCreateAfter)))
 	{
-		g_ModuleInterface->Print(CM_RED, "Failed to register callback for %s", "gml_Object_obj_StageManager_Create_0");
-		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Object_obj_StageManager_Create_0");
+		return;
 	}
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_TitleScreen_Create_0", TitleScreenCreateBefore, nullptr)))
 	{
-		g_ModuleInterface->Print(CM_RED, "Failed to register callback for %s", "gml_Object_obj_TitleScreen_Create_0");
-		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Object_obj_TitleScreen_Create_0");
+		return;
 	}
-	
+
 
 	g_RunnerInterface = g_ModuleInterface->GetRunnerInterface();
 	g_ModuleInterface->GetGlobalInstance(&globalInstance);
 
 	objAttackControllerIndex = static_cast<int>(g_ModuleInterface->CallBuiltin("asset_get_index", { "obj_AttackController" }).ToInt32());
 
+	AurieStatus status = AURIE_SUCCESS;
 	for (int i = 0; i < std::extent<decltype(VariableNamesStringsArr)>::value; i++)
 	{
 		if (!AurieSuccess(status))
 		{
-			g_ModuleInterface->Print(CM_RED, "Failed to get hash for %s", VariableNamesStringsArr[i]);
+			DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to get hash for %s", VariableNamesStringsArr[i]);
 		}
 		GMLVarIndexMapGMLHash[i] = std::move(g_ModuleInterface->CallBuiltin("variable_get_hash", { VariableNamesStringsArr[i] }));
 	}
 
+	moduleInitStatus = AURIE_SUCCESS;
+
 	callbackManagerInterfacePtr->LogToFile(MODNAME, "Finished initializing");
+}
+
+void runnerInitCallback(FunctionWrapper<void(int)>& dummyWrapper)
+{
+	AurieStatus status = AURIE_SUCCESS;
+	status = ObGetInterface("callbackManager", (AurieInterfaceBase*&)callbackManagerInterfacePtr);
+	if (!AurieSuccess(status))
+	{
+		printf("Failed to get callback manager interface. Make sure that CallbackManagerMod is located in the mods/Aurie directory.\n");
+		return;
+	}
+
+	callbackManagerInterfacePtr->RegisterInitFunction(initHooks);
+}
+
+EXPORTED AurieStatus ModulePreinitialize(
+	IN AurieModule* Module,
+	IN const fs::path& ModulePath
+)
+{
+	AurieStatus status = AURIE_SUCCESS;
+	// Gets a handle to the interface exposed by YYTK
+	// You can keep this pointer for future use, as it will not change unless YYTK is unloaded.
+	g_ModuleInterface = GetInterface();
+
+	// If we can't get the interface, we fail loading.
+	if (!AurieSuccess(status))
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "Failed to get YYTK Interface");
+		printf("Failed to get YYTK Interface\n");
+		return AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
+	}
+
+	g_ModuleInterface->CreateCallback(
+		Module,
+		EVENT_RUNNER_INIT,
+		runnerInitCallback,
+		0
+	);
 
 	return AURIE_SUCCESS;
+}
+
+EXPORTED AurieStatus ModuleInitialize(
+	IN AurieModule* Module,
+	IN const fs::path& ModulePath
+)
+{
+	return moduleInitStatus;
 }

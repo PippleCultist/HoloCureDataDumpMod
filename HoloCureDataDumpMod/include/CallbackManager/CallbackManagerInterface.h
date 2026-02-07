@@ -6,6 +6,9 @@ using namespace YYTK;
 
 typedef std::tuple<CInstance*, CInstance*, CCode*, int, RValue*> CodeEventArgs;
 typedef void (*CodeEvent)(CodeEventArgs&);
+typedef void (*initFunc)();
+
+void CodeCallback(FWCodeEvent& CodeContext);
 
 struct CallbackManagerInterface : AurieInterfaceBase
 {
@@ -139,4 +142,21 @@ struct CallbackManagerInterface : AurieInterfaceBase
 	* WARNING: WILL HAVE UNDEFINED BEHAVIOR IF BOTH CALL AND CANCEL OCCUR
 	*/
 	virtual void CancelOriginalFunction();
+
+	/*
+	* Call this in ModulePreinitialize to disable callbacks until an equal amount of InitEnableCallback has been called
+	* to make sure that callbacks don't run while the mods are still initializing
+	*/
+	virtual void PreInitDisableCallback();
+
+	/*
+	* Call this in ModuleInitialize to enable callbacks when it has been called the same amount of times as PreInitDisableCallback
+	* to make sure that callbacks don't run while the mods are still initializing
+	*/
+	virtual void InitEnableCallback();
+
+	/*
+	* Call this in the EVENT_RUNNER_INIT callback to register your initialization function for hooking and setting up variables.
+	*/
+	virtual void RegisterInitFunction(initFunc initFunction);
 };
