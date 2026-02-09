@@ -3,7 +3,7 @@
 #include <YYToolkit/YYTK_Shared.hpp>
 #include <CallbackManager/CallbackManagerInterface.h>
 
-#define VERSION_NUM "v1.1.0"
+#define VERSION_NUM "v1.1.1"
 #define MODNAME "Holocure Data Dump Mod " VERSION_NUM
 
 #define SOME_ENUM(DO) \
